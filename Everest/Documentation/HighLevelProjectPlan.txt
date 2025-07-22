@@ -1,0 +1,18 @@
+Application Name: Scrum Master
+Description: Application will be used by the Scrum master to build Sprint planning for the project.
+Features:
+- Application will have a UI Screen to enter the Project requirement and request for detailed Plan for it from the Application UI.
+- The generated plan can be saved in the and distributed to the team
+- An Page to manage team members with their skills set like UI developer, Backend Developer, DBA, Business Analyst, Tester
+- Each task that is generated will be auto assigned to the team members based on the role
+- AI will all so add plan for the task, duration to complete, dependency between the task.
+- Scrum Dashboard will show the week/Day based task that will be ran by the team
+- Additionally the plan can be updated, time duration can be extended. Based on that following that task all the other task will auto adjust and new plan will be genrated
+- A project level Gantt chart will be published in a PM dashboard Page.
+
+Total 3 Main pages
+1) Task Input Page
+2) Scrum dashboard (to show day or week based task
+3) Project dashboard
+4) Team Management Page
+5) Task edit form whenever any task is edited from the Scrum dashboard or Project dashboard

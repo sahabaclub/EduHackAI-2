@@ -1,0 +1,250 @@
+@page
+@model TaskEntryModel
+@{
+    ViewData["Title"] = "AI Task Builder Assistant";
+}
+
+<h2>API Task Builder Assistant</h2>
+
+
+
+<form method="post">
+    <div class="form-group mb-3">
+        <label for="Requirement">Requirement</label>
+        <textarea class="form-control" id="Requirement" name="Requirement" rows="3" required>@Model.Requirement</textarea>
+        <div class="row align-items-center mt-3">
+            <div class="col-md-6">
+                <label for="ProjectDropdown">Project Name</label>
+                <select id="ProjectDropdown" name="ProjectName" class="form-control">
+                    @if (Model.GetProjects() != null)
+                    {
+                        foreach (var project in Model.GetProjects())
+                        {
+                            <option value="@project.Id">@project.Name</option>
+                        }
+                    }
+                </select>
+                 
+            </div>
+            <div class="col-md-6 text-end">
+                <button id="getTaskListIfExist" type="button" class="btn glossy-btn" >Fetch TaskList</button>
+                <button type="button" class="btn glossy-btn" data-bs-toggle="modal" data-bs-target="#addProjectModal">Add New Project</button>
+            </div>
+        </div>
+        <label for="UserDropdown" class="mt-3">Assign Users</label>
+        <input type="text" id="userSearchBox" class="form-control mt-2" placeholder="Search users..." onkeyup="filterUserDropdown()" />
+        <div class="glossy-btn p-2" style="border-radius:8px;">
+            <select id="UserDropdown" name="SelectedUsers" multiple class="form-control" style="width:100%; height:120px; background:#fff; color:#333;" onchange="updateSelectedLabels()">
+                @if (Model.GetTeamMembers() != null)
+                {
+                    foreach (var user in Model.GetTeamMembers())
+                    {
+                        <option value="@user.Id">@user.FirstName @user.LastName (Role: @user.Role)</option>
+                    }
+                }
+            </select>
+        </div>
+        <div id="selectedLabels" class="mt-2"></div>
+    </div>
+    <div class="d-flex justify-content-center">
+        <button type="submit" class="btn glossy-btn mt-2">Generate Tasks</button>
+    </div>
+</form>
+
+<!-- Add Project Modal -->
+<div class="modal fade" id="addProjectModal" tabindex="-1" aria-labelledby="addProjectModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addProjectModalLabel">Add New Project</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addProjectForm">
+          <div class="mb-3">
+            <label for="newProjectName" class="form-label">Project Name</label>
+            <input type="text" class="form-control" id="newProjectName" required />
+          </div>
+          <div class="mb-3">
+            <label for="newProjectDesc" class="form-label">Description</label>
+            <textarea class="form-control" id="newProjectDesc" rows="2"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn glossy-btn" onclick="saveNewProject()">Save Project</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function filterUserDropdown() {
+    var input = document.getElementById('userSearchBox').value.toLowerCase();
+    var select = document.getElementById('UserDropdown');
+    for (var i = 0; i < select.options.length; i++) {
+        var txt = select.options[i].text.toLowerCase();
+        select.options[i].style.display = txt.includes(input) ? '' : 'none';
+    }
+}
+
+function updateSelectedLabels() {
+    var select = document.getElementById('UserDropdown');
+    var container = document.getElementById('selectedLabels');
+    container.innerHTML = '';
+    for (var i = 0; i < select.options.length; i++) {
+        if (select.options[i].selected && select.options[i].style.display !== 'none') {
+            var label = document.createElement('span');
+            label.className = 'badge rounded-pill bg-primary me-2 mb-2';
+            label.innerHTML = select.options[i].text + ' <span style="cursor:pointer;" onclick="removeUser(' + i + ')">&times;</span>';
+            container.appendChild(label);
+        }
+    }
+}
+
+function removeUser(idx) {
+    var select = document.getElementById('UserDropdown');
+    select.options[idx].selected = false;
+    updateSelectedLabels();
+}
+
+
+document.getElementById('getTaskListIfExist').addEventListener('click', function() {
+    var projectId = document.getElementById('ProjectDropdown').value;
+    if (!projectId) {
+        document.getElementById('projectTaskList').innerHTML = '';
+        return;
+    }
+    
+    fetch('/api/gettasksbyproject?projectId=' + encodeURIComponent(projectId))
+        .then(res => res.json())
+        .then(data => {
+            if (Array.isArray(data) && data.length > 0) {
+                let html = `<h3 class="mt-4">Tasks for Selected Project</h3><table class="table glassy-table table-bordered table-scroll mt-2"><thead><tr><th>Sequence</th><th>Task Name</th><th>Duration (days)</th><th>Assigned To</th><th>Start Date</th><th>End Date</th></tr></thead><tbody>`;
+                for (const task of data) {
+                    html += `<tr><td>${task.sequenceNumber}</td><td>${task.taskName}</td><td>${task.duration}</td><td>${task.assignedTo}</td><td>${task.startDate}</td><td>${task.endDate}</td></tr>`;
+                }
+                html += '</tbody></table>';
+                document.getElementById('projectTaskList').innerHTML = html;
+            } else {
+                document.getElementById('projectTaskList').innerHTML = '<div class="alert alert-info mt-3">No tasks found for this project.</div>';
+            }
+        })
+        .catch(() => {
+            document.getElementById('projectTaskList').innerHTML = '<div class="alert alert-danger mt-3">Error loading tasks.</div>';
+        });
+});
+
+
+document.getElementById('UserDropdown').addEventListener('change', updateSelectedLabels);
+document.addEventListener('DOMContentLoaded', updateSelectedLabels);
+
+function saveNewProject() {
+    var name = document.getElementById('newProjectName').value;
+    var descr = document.getElementById('newProjectDesc').value;
+    if (!name) return;
+    fetch('/api/addproject', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ "Name": name, "Description": descr })
+    }).then(async res => {
+        let text = await res.text();
+        let data;
+        try {
+            data = text ? JSON.parse(text) : null;
+        } catch (e) {
+            alert('Error: Invalid server response.\n' + text);
+            return;
+        }
+        if (data && data.success) {
+            location.reload();
+        } else {
+            alert('Error saving project' + (data && data.error ? ': ' + data.error : ''));
+        }
+    });
+}
+</script>
+
+<script>
+function filterUserDropdown() {
+    var input = document.getElementById('userSearchBox').value.toLowerCase();
+    var select = document.getElementById('UserDropdown');
+    for (var i = 0; i < select.options.length; i++) {
+        var txt = select.options[i].text.toLowerCase();
+        select.options[i].style.display = txt.includes(input) ? '' : 'none';
+    }
+}
+
+
+document.getElementById('fetchTaskListBtn').addEventListener('click', function() {
+    var projectId = document.getElementById('ProjectDropdown').value;
+    if (!projectId) {
+        document.getElementById('projectTaskList').innerHTML = '';
+        return;
+    }
+    
+document.getElementById('ProjectDropdown').addEventListener('change', function() {
+    var projectId = this.value;
+    if (!projectId) {
+        document.getElementById('projectTaskList').innerHTML = '';
+        return;
+    }
+
+    fetch('/api/gettasksbyproject?projectId=' + encodeURIComponent(projectId))
+        .then(res => res.json())
+        .then(data => {
+            if (Array.isArray(data) && data.length > 0) {
+                let html = `<h3 class=\"mt-4\">Tasks for Selected Project</h3><table class=\"table glassy-table table-bordered table-scroll mt-2\"><thead><tr><th>Sequence</th><th>Task Name</th><th>Duration (days)</th><th>Assigned To</th><th>Start Date</th><th>End Date</th></tr></thead><tbody>`;
+                for (const task of data) {
+                    html += `<tr><td>${task.sequenceNumber}</td><td>${task.taskName}</td><td>${task.duration}</td><td>${task.assignedTo}</td><td>${task.startDate}</td><td>${task.endDate}</td></tr>`;
+                }
+                html += '</tbody></table>';
+                document.getElementById('projectTaskList').innerHTML = html;
+            } else {
+                document.getElementById('projectTaskList').innerHTML = '<div class="alert alert-info mt-3">No tasks found for this project.</div>';
+            }
+        })
+        .catch(() => {
+            document.getElementById('projectTaskList').innerHTML = '<div class="alert alert-danger mt-3">Error loading tasks.</div>';
+        });
+});
+</script>
+<div id="projectTaskList"></div>
+
+@if (Model.ParsedTaskList != null && Model.ParsedTaskList.Count > 0)
+{
+    <h3 class="mt-4">Generated Task List</h3>
+    <table class="table glassy-table table-bordered table-scroll mt-2">
+        <thead>
+            <tr>
+                <th>Sequence</th>
+                <th>Task Name</th>
+                <th>Duration (days)</th>
+                <th>Assigned To</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var task in Model.ParsedTaskList)
+        {
+            <tr>
+                <td>@task.sequenceNumber</td>
+                <td>@task.taskName</td>
+                <td>@task.duration</td>
+                <td>@task.assignedTo</td>
+                <td>@task.startDate</td>
+                <td>@task.endDate</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+else if (!string.IsNullOrWhiteSpace(Model.OpenAIResponse))
+{
+    <div class="alert alert-info mt-3">
+        <strong>OpenAI Response:</strong>
+        <pre>@Model.OpenAIResponse</pre>
+    </div>
+}

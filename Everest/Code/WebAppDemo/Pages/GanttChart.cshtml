@@ -1,0 +1,322 @@
+@page
+@model GanttChartModel
+@{
+    ViewData["Title"] = "Gantt Chart";
+}
+
+
+<div class="text-center mb-3">
+    <h1 class="display-4">Gantt Chart</h1>
+    <div style="display: flex; justify-content: center; align-items: center; margin-top: 18px;">
+        <div style="display: flex; align-items: center;">
+            <select id="GanttProjectDropdown" class="form-control" style="width: 260px; max-width: 320px; display: inline-block;">
+                <option value="">Select Project</option>
+                @if (Model.GetProjects() != null)
+                    {
+                        foreach (var project in Model.GetProjects())
+                        {
+                            <option value="@project.Id">@project.Name</option>
+                        }
+                    }
+            </select>
+            <button type="button" class="btn glossy-btn mx-2" id="fetchGanttTaskListBtn">Fetch Task List</button>
+            @* <div class="form-check form-switch mx-3">
+                <input class="form-check-input" type="checkbox" id="enableProgressUpdate" checked>
+                <label class="form-check-label" for="enableProgressUpdate">Enable Progress Update</label>
+            </div> *@
+        </div>
+    </div>
+    <div style="margin-top: 18px;">
+        <button id="weekViewBtn" class="btn glossy-btn mx-2">Week View</button>
+        <button id="dayViewBtn" class="btn glossy-btn mx-2">Day View</button>
+        <button id="saveChangesBtn" class="btn glossy-btn mx-2">Save Changes</button>
+    </div>
+</div>
+<style>
+.glossy-btn {
+  background: linear-gradient(90deg, #a18cd1 0%, #fbc2eb 100%);
+  color: #4b006e;
+  border: none;
+  border-radius: 24px;
+  box-shadow: 0 2px 8px rgba(160,140,209,0.12);
+  font-weight: 600;
+  padding: 10px 28px;
+  font-size: 1.1rem;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.glossy-btn:hover {
+  box-shadow: 0 4px 16px rgba(160,140,209,0.18);
+  transform: translateY(-2px) scale(1.04);
+}
+</style>
+
+<div class="container mt-4" style="display: flex; flex-direction: row; justify-content: center;">
+  <div style="width: 90vw; max-width: 1600px; min-width: 900px; margin: 0 3vw; overflow-x: auto; overflow-y: auto; height: 500px; background: #fff; border-radius: 12px; box-shadow: 0 2px 16px rgba(0,0,0,0.08);">
+    <div id="gantt-root" style="width: 2000px; min-width:900px; overflow-x: auto;"></div>
+  </div>
+</div>
+<link rel="stylesheet" href="/js/frappe-gantt/frappe-gantt.css" />
+<script src="/js/frappe-gantt/frappe-gantt.min.js"></script> 
+<!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/frappe-gantt/dist/frappe-gantt.css">
+<script src="https://cdn.jsdelivr.net/npm/frappe-gantt/dist/frappe-gantt.min.js"></script> -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  let gantt;
+  let currentView = 'Week';
+  let tasks = [];
+  let changedTasks = [];
+  let progressUpdateEnabled = true;
+
+  // Progress slider modal
+  let progressModal = document.createElement('div');
+  progressModal.id = 'progressModal';
+  progressModal.style = 'display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.18); z-index:9999; justify-content:center; align-items:center;';
+  progressModal.innerHTML = `
+    <div style="background:#fff; border-radius:16px; box-shadow:0 2px 16px rgba(0,0,0,0.18); padding:32px 40px; min-width:320px; text-align:center; position:relative;">
+      <h4 id="progressModalTitle" style="margin-bottom:18px; color:#4b006e;"></h4>
+      <input type="range" id="progressSlider" min="0" max="100" step="1" style="width:80%; margin-bottom:12px;">
+      <div style="margin-bottom:18px; font-size:1.1rem; color:#4b006e;">Progress: <span id="progressValue">0</span>%</div>
+      <div style="margin-bottom:18px;">
+        <label for="progressStartDate" style="margin-right:8px; color:#4b006e;">Start Date:</label>
+        <input type="date" id="progressStartDate" style="margin-right:18px;">
+        <label for="progressEndDate" style="margin-right:8px; color:#4b006e;">End Date:</label>
+        <input type="date" id="progressEndDate">
+      </div>
+      <button id="progressSaveBtn" class="btn glossy-btn mx-2">Save</button>
+      <button id="progressCancelBtn" class="btn glossy-btn mx-2">Cancel</button>
+    </div>
+  `;
+  document.body.appendChild(progressModal);
+
+  let currentTaskForProgress = null;
+  document.getElementById('progressSlider').oninput = function() {
+    document.getElementById('progressValue').textContent = this.value;
+  };
+  document.getElementById('progressCancelBtn').onclick = function() {
+    progressModal.style.display = 'none';
+    currentTaskForProgress = null;
+  };
+  document.getElementById('progressSaveBtn').onclick = function() {
+    if (currentTaskForProgress) {
+      let newProgress = parseInt(document.getElementById('progressSlider').value);
+      let newStart = document.getElementById('progressStartDate').value;
+      let newEnd = document.getElementById('progressEndDate').value;
+      currentTaskForProgress.progress = newProgress;
+      if (newStart) currentTaskForProgress.start = newStart;
+      if (newEnd) currentTaskForProgress.end = newEnd;
+      let idx = tasks.findIndex(t => t.id === currentTaskForProgress.id);
+      if (idx !== -1) {
+        tasks[idx].progress = newProgress;
+        if (newStart) tasks[idx].start = newStart;
+        if (newEnd) tasks[idx].end = newEnd;
+        changedTasks.push({ id: currentTaskForProgress.id, progress: newProgress, start: newStart, end: newEnd });
+        renderGanttFromTasks(currentView);
+      }
+    }
+    progressModal.style.display = 'none';
+    currentTaskForProgress = null;
+  };
+
+  @* document.getElementById('enableProgressUpdate').onchange = function() {
+    progressUpdateEnabled = this.checked;
+    renderGanttFromTasks(currentView);
+  }; *@
+
+  function fetchTasksByProject(projectId, viewMode = 'Week') {
+    if (!projectId) return;
+    fetch('/api/gettasksbyproject?projectId=' + encodeURIComponent(projectId))
+      .then(res => res.json())
+      .then(data => {
+        function convertToISO(dateStr) {
+          if (!dateStr) return '';
+          let parts = dateStr.includes('-') ? dateStr.split('-') : dateStr.split('/');
+          if (parts.length === 3) {
+            dateFormat = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+            return dateFormat;
+          }
+          return dateStr;
+        }
+        if (!Array.isArray(data) || data.length === 0) {
+          tasks = [];
+          renderGanttFromTasks(viewMode);
+          return;
+        }
+        tasks = data
+          .map(t => ({
+            id: (t.id || t.Id) ? String(t.id || t.Id) : '',
+            name: t.taskName || t.name || '',
+            start: convertToISO(t.startDate || t.start),
+            end: convertToISO(t.endDate || t.end),
+            progress: typeof t.progress === 'number' ? t.progress : 0,
+            dependencies: t.dependencies || '',
+            custom_class: '',
+            assignedTo: t.assignedTo || '',
+            sequence: typeof t.sequenceNumber === 'number' ? t.sequenceNumber : (typeof t.sequence === 'number' ? t.sequence : 0),
+            group: t.group || '', // Ensure group property exists
+            bar: t.bar || {} // Ensure bar property exists
+          }))
+          .filter(t => t.id && t.name && t.start && t.end && !isNaN(Date.parse(t.start)) && !isNaN(Date.parse(t.end)));
+        tasks = tasks.sort((a, b) => {
+          const d1 = new Date(a.start) - new Date(b.start);
+          if (d1 !== 0) return d1;
+          return (a.sequence || 0) - (b.sequence || 0);
+        });
+        renderGantt('Week');
+      });
+  }
+
+  function renderGantt(viewMode = 'Week') {
+    fetch('/api/ganttdata')
+      .then(res => res.json())
+      .then(data => {
+        function convertToISO(dateStr) {
+          if (!dateStr) return '';
+          let parts = dateStr.includes('-') ? dateStr.split('-') : dateStr.split('/');
+          if (parts.length === 3) {
+            dateFormat = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+            return dateFormat;
+          }
+          return dateStr;
+        }
+        tasks = data
+          .map(t => ({
+            id: t.id,
+            name: t.name,
+            start: convertToISO(t.start),
+            end: convertToISO(t.end),
+            progress: t.progress || 0,
+            dependencies: t.dependencies || '',
+            custom_class: '',
+            assignedTo: t.assignedTo,
+            sequence: t.sequenceNumber || t.sequence || '',
+            group: t.group || '', // Ensure group property exists
+            bar: t.bar || {} // Ensure bar property exists
+          }))
+          .filter(t => t.start && t.end && !isNaN(Date.parse(t.start)) && !isNaN(Date.parse(t.end)));
+        tasks = tasks.sort((a, b) => {
+          const d1 = new Date(a.start) - new Date(b.start);
+          if (d1 !== 0) return d1;
+          return (a.sequence || 0) - (b.sequence || 0);
+        });
+        renderGanttFromTasks(viewMode);
+      });
+  }
+
+  function renderGanttFromTasks(viewMode = 'Week') {
+    const rowHeight = 38;
+    const ganttRoot = document.getElementById("gantt-root");
+    if (!tasks || tasks.length === 0) {
+      if (ganttRoot) {
+        ganttRoot.innerHTML = '<div style="padding:32px; text-align:center; color:#4b006e; font-size:1.2rem;">No Task List build for the selected project</div>';
+      }
+      return;
+    }
+    if (window.Gantt) {
+      gantt = new window.Gantt("#gantt-root", tasks, {
+        view_mode: viewMode,
+        holidays:{ 'var(--g-weekend-highlight-color)': 'weekend' },
+        on_progress: function(task, progress) {
+          // Deprecated: use slider modal instead
+          return false;
+        },
+        show_expected_progress: true,
+        //custom_popup_html: function(task) {
+        //  return `<div style='padding:8px'><b>${task.name}</b><br>Assigned: ${task.assignedTo || ''}<br>Seq: ${task.sequence}<br>Start: ${task.start}<br>End: ${task.end}</div>`;
+        //},
+        on_click: function(task) {
+          // Show progress slider modal
+          currentTaskForProgress = task;
+          document.getElementById('progressModalTitle').textContent = `Update Progress for: ${task.name}`;
+          document.getElementById('progressSlider').value = task.progress || 0;
+          document.getElementById('progressValue').textContent = task.progress || 0;
+          // Set start/end date pickers
+          let startDateInput = document.getElementById('progressStartDate');
+          let endDateInput = document.getElementById('progressEndDate');
+          // Use yyyy-MM-dd format for input type=date
+          let startVal = task.start ? task.start.slice(0,10) : '';
+          let endVal = task.end ? task.end.slice(0,10) : '';
+          startDateInput.value = startVal;
+          endDateInput.value = endVal;
+          progressModal.style.display = 'flex';
+        },
+        on_date_change: function(task, start, end) {
+          task.start = start.toISOString().slice(0,10);
+          task.end = end.toISOString().slice(0,10);
+          let idx = tasks.findIndex(t => t.id === task.id);
+          if (idx !== -1) {
+            let prevEnd = end;
+            for (let i = idx + 1; i < tasks.length; i++) {
+              let duration = (new Date(tasks[i].end) - new Date(tasks[i].start)) / (1000*60*60*24);
+              let newStart = new Date(prevEnd);
+              let newEnd = new Date(newStart);
+              newEnd.setDate(newStart.getDate() + duration);
+              tasks[i].start = newStart.toISOString().slice(0,10);
+              tasks[i].end = newEnd.toISOString().slice(0,10);
+              prevEnd = tasks[i].end;
+              changedTasks.push({ id: tasks[i].id, start: tasks[i].start, end: tasks[i].end, progress: tasks[i].progress });
+            }
+          }
+          changedTasks.push({ id: task.id, start: task.start, end: task.end, progress: task.progress });
+          renderGanttFromTasks(viewMode); // Re-render from local tasks
+          return false;
+        },
+        on_progress_change: function(task, progress) {
+          task.progress = progress;
+          let idx = tasks.findIndex(t => t.id === task.id);
+          if (idx !== -1) {
+            tasks[idx].progress = progress;
+            // Also get start/end dates from the task
+            changedTasks.push({ id: tasks[i].id, progress: progress, start: task.start, end: task.end });
+          }
+          renderGanttFromTasks(viewMode);
+          return false;
+        },
+        on_view_change: function() {},
+        bar_height: rowHeight - 8
+      });
+    }
+  }
+
+  //renderGantt(currentView);
+
+  document.getElementById('fetchGanttTaskListBtn').onclick = function() {
+    var projectId = document.getElementById('GanttProjectDropdown').value;
+    if (!projectId) return;
+    fetchTasksByProject(projectId, currentView);
+  };
+
+  document.getElementById('weekViewBtn').onclick = function() {
+    currentView = 'Week';
+    renderGantt('Week');
+    this.classList.add('active');
+    document.getElementById('dayViewBtn').classList.remove('active');
+  };
+  document.getElementById('dayViewBtn').onclick = function() {
+    currentView = 'Day';
+    renderGantt('Day');
+    this.classList.add('active');
+    document.getElementById('weekViewBtn').classList.remove('active');
+  };
+  document.getElementById('saveChangesBtn').onclick = function() {
+    if (changedTasks.length === 0) {
+      alert('No changes to save.');
+      return;
+    }
+    fetch('/api/updatetasks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(changedTasks)
+    })
+    .then(res => res.json())
+    .then(function(data) {
+      if (data.success) {
+        alert('Tasks updated successfully!');
+        changedTasks = [];
+      } else {
+        alert('Error updating tasks.');
+      }
+    })
+    .catch(() => alert('Error updating tasks.'));
+  };
+});
+</script>

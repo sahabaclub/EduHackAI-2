@@ -1,0 +1,156 @@
+/* Glossy Button Style */
+.glossy-btn {
+    background: linear-gradient(90deg, #8e24aa 0%, #ce93d8 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(106,27,154,0.15);
+    font-weight: 600;
+    padding: 0.5rem 1.5rem;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+.glossy-btn:hover, .glossy-btn:focus {
+    background: linear-gradient(90deg, #6a1b9a 0%, #ab47bc 100%);
+    box-shadow: 0 4px 16px rgba(106,27,154,0.25);
+    color: #fff;
+}
+/* Table body scroll for max 8 rows */
+.table-scroll tbody {
+    display: block;
+    max-height: calc(8 * 3.25rem); /* 8 rows, each row ~52px (0.75rem top+bottom padding + font size) */
+    overflow-y: auto;
+}
+.table-scroll thead, .table-scroll tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+.table-scroll {
+    width: 100%;
+    border-collapse: separate;
+}
+.table.glassy-table thead th {
+    background: rgba(179, 157, 219, 0.95);
+    color: #3d0066;
+    font-weight: 700;
+    transition: background 0.2s, color 0.2s;
+}
+.table.glassy-table thead th:hover {
+    background: #8e24aa;
+    color: #fff;
+    cursor: pointer;
+}
+/* Glassy Table Styles for Purple Theme */
+.table.glassy-table {
+    background: rgba(245, 240, 250, 0.7);
+    box-shadow: 0 4px 24px 0 rgba(106,27,154,0.10), 0 1.5px 4px 0 rgba(106,27,154,0.10);
+    border-radius: 16px;
+    overflow: hidden;
+    backdrop-filter: blur(4px);
+    border-collapse: separate;
+    border-spacing: 0;
+}
+.table.glassy-table thead {
+    background: rgba(179, 157, 219, 0.85);
+    color: #3d0066;
+}
+.table.glassy-table tbody tr {
+    transition: background 0.2s;
+}
+.table.glassy-table tbody tr:nth-of-type(odd) {
+    background-color: rgba(237, 231, 246, 0.85);
+}
+.table.glassy-table tbody tr:nth-of-type(even) {
+    background-color: rgba(209, 196, 233, 0.85);
+}
+.table.glassy-table tbody tr:hover {
+    background-color: #ce93d8 !important;
+    color: #fff;
+    cursor: pointer;
+}
+.table.glassy-table th, .table.glassy-table td {
+    border: none;
+    padding: 0.75rem 1.25rem;
+    vertical-align: middle;
+}
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+/* Purple Theme Styles */
+body {
+    background-color: #f5f0fa;
+    color: #3d0066;
+}
+h1, h2, h3, h4, h5, h6 {
+    color: #6a1b9a;
+    font-weight: 700;
+}
+.navbar, .footer {
+    background-color: #6a1b9a !important;
+    color: #fff !important;
+}
+.table {
+    border: 2px solid #6a1b9a;
+}
+.table thead {
+    background-color: #b39ddb;
+    color: #3d0066;
+}
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #ede7f6;
+}
+.table-striped tbody tr:nth-of-type(even) {
+    background-color: #d1c4e9;
+}
+.btn-primary {
+    background-color: #8e24aa;
+    border-color: #6a1b9a;
+}
+.btn-primary:hover {
+    background-color: #6a1b9a;
+    border-color: #4a148c;
+}
+.form-control:focus {
+    border-color: #8e24aa;
+    box-shadow: 0 0 0 0.2rem rgba(142,36,170,.25);
+}
+.alert-info {
+    background-color: #ede7f6;
+    color: #3d0066;
+    border-color: #6a1b9a;
+}
+.footer {
+    height: 8%;
+    padding: 0.5rem 1rem;
+    text-align: center;
+    background-color: #6a1b9a !important;
+    color: #fff !important;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: fixed !important;
+}

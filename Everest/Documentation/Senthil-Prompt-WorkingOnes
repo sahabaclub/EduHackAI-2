@@ -1,0 +1,25 @@
+BEGIN ########################################################
+1) Create a new ASP.NET Core web application named AspNetHelloWorld in the workspace. It should have a single web page that displays 'Hello world'.
+#used to setup VSCode for ASP.net
+
+
+Created task Run ASP.NET WebAppDemo
+
+The ASP.NET WebAppDemo project is now running. You can view the sample page by opening the local server URL (usually http://localhost:5000 or http://localhost:5001) in your web browser.
+
+If you need the exact URL or want to see the output, let me know and I can provide further details or help you troubleshoot any issues.
+
+yes need more details and help in troubleshooting
+
+Got output for shell: Run ASP.NET WebAppDemo
+
+Your ASP.NET WebAppDemo project is running and listening on http://localhost:5115.
+
+To view your sample page:
+
+Open your web browser.
+Go to http://localhost:5115
+If you do not see the "Hello world" page or encounter any errors, let me know what you see or describe the issue, and I can help you troubleshoot further.
+END #######################################
+
+

@@ -1,0 +1,52 @@
+@page
+@model UserTasksModel
+@{
+    ViewData["Title"] = "My Tasks";
+}
+
+<div class="container mt-5">
+    <h1 class="display-4 mb-4">My Tasks</h1>
+    <table class="table glassy-table table-bordered table-scroll">
+        <thead>
+            <tr>
+                <th style="max-width:120px;word-break:break-word;white-space:normal;">Task Name</th>
+                <th style="max-width:120px;word-break:break-word;white-space:normal;">Project</th>
+                <th style="max-width:120px;word-break:break-word;white-space:normal;">Start Date</th>
+                <th style="max-width:120px;word-break:break-word;white-space:normal;">End Date</th>
+                <th style="max-width:120px;word-break:break-word;white-space:normal;">Progress</th>
+                
+            </tr>
+        </thead>
+        <tbody>
+        @if (Model.Tasks != null && Model.Tasks.Count > 0)
+        {
+            foreach (var task in Model.Tasks)
+            {
+                <tr>
+                    <td>@task.taskName</td>
+                    <td>@task.projectName</td>
+                    <td>@task.startDate</td>
+                    <td>@task.endDate</td>
+                    <td>@task.progress</td>
+                    
+                </tr>
+            }
+        }
+        else
+        {
+            <tr><td colspan="6" class="text-center">No tasks found.</td></tr>
+        }
+        </tbody>
+    </table>
+</div>
+<style>
+.glassy-table {
+    background: rgba(255,255,255,0.95);
+    border-radius: 12px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+}
+.table-scroll {
+    overflow-x: auto;
+    display: block;
+}
+</style>
