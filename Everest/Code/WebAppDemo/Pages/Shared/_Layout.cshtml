@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - WebAppDemo</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/WebAppDemo.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm">
+            <div class="container d-flex align-items-center justify-content-center">
+                <a href="/Index">
+                    <img src="~/everest.jpg" alt="Everest Logo" style="height:48px;width:48px;object-fit:cover;border-radius:8px;margin-right:16px;vertical-align:middle;" />
+                </a>
+                <span class="mx-auto" style="font-size:2rem;font-weight:bold;letter-spacing:2px; color:#fff;">Scrum Master</span>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <div class="d-flex justify-content-end align-items-center mt-2 mb-2">
+            @if (Context.Session.GetString("IsAuthenticated") == "true")
+            {
+                <a href="/Logout" class="btn btn-outline-danger btn-sm">Logout</a>
+            }
+        </div>
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="footer mt-auto">
+        <div class="container">
+            <hr />
+            <div class="text-center" style="font-weight:bold; color:#fff;">EduHackAI-2</div>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

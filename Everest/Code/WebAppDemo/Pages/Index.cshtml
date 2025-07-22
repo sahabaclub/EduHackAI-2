@@ -1,0 +1,53 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+    @if (Model.ShowTeamManagement)
+        {
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Gantt Chart</h5>
+                    <p class="card-text">View and manage your project schedule visually.</p>
+                    <a href="/GanttChart" class="btn btn-primary">Go to Gantt Chart</a>
+                </div>
+            </div>
+        </div>
+   
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Task Entry</h5>
+                    <p class="card-text">Enter requirements and generate sub-tasks for your project.</p>
+                    <a href="/TaskEntry" class="btn btn-primary">Go to Task Entry</a>
+                </div>
+            </div>
+        </div>
+   
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Team Management</h5>
+                    <p class="card-text">Manage your web application development team members.</p>
+                    <a href="/TeamManagement" class="btn btn-primary">Go to Team Management</a>
+                </div>
+            </div>
+        </div>
+        }
+        <div class="col-md-3 mb-4">
+            <a href="/UserTasks" style="text-decoration:none;">
+                <div class="card shadow-sm h-100 tile-card">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                        <img src="/icons/updatePencilIcon.png" alt="My Tasks" style="width:48px;height:48px;object-fit:contain;" />
+                        <h5 class="card-title mt-3 mb-0" style="color:#4b006e;">My Tasks</h5>
+                        <p class="card-text text-muted mt-2 mb-0" style="font-size:1rem;">View your assigned tasks</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
