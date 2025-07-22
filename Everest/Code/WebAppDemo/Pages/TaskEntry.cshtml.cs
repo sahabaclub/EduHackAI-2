@@ -57,7 +57,7 @@ public class TaskEntryModel : PageModel
    
         if (!string.IsNullOrWhiteSpace(Requirement))
         {
-            var ToReplaceWith__api__Key = "<APIKEY>"; // TODO: Replace with your actual key
+            var apiKey = "<APIKEY>"; // TODO: Replace with your actual key for working with OpenAI API
             // Only include selected users in the teamMembers list
             var allMembers = GetTeamMembers();
             var teamMembers = allMembers.Where(u => selectedUsers.Contains(u.Id.ToString())).ToList();
