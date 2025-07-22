@@ -1,0 +1,395 @@
+@page
+@model TeamManagementModel
+@{
+    ViewData["Title"] = "Team Management";
+}
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="display-4">Team Management</h1>
+        <button type="button" class="btn btn-success" style="min-width:120px;" data-bs-toggle="modal" data-bs-target="#addUserModal">Add User</button>
+    </div>
+    <form class="mb-3 d-flex" method="get">
+        <input type="text" name="search" class="form-control me-2" placeholder="Search user..." style="max-width:300px;">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+    <table class="table glassy-table table-bordered table-scroll">
+        <thead>
+            <tr>
+                <th style="max-width:120px;word-break:break-word;white-space:normal;">Username</th>
+                <th style="max-width:120px;word-break:break-word;white-space:normal;">First Name</th>
+                <th style="max-width:120px;word-break:break-word;white-space:normal;">Last Name</th>
+                <th style="max-width:180px;word-break:break-word;white-space:normal;">Email</th>
+                <th style="max-width:120px;word-break:break-word;white-space:normal;">Team Name</th>
+                <th style="max-width:100px;word-break:break-word;white-space:normal;">Status</th>
+                <th style="max-width:100px;word-break:break-word;white-space:normal;">Role</th>
+                <th style="max-width:160px;word-break:break-word;white-space:normal;">Created</th>
+                <th style="max-width:160px;word-break:break-word;white-space:normal;">Modified</th>
+                <th style="max-width:120px;word-break:break-word;white-space:normal;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        @if (Model.Users != null && Model.Users.Count > 0)
+        {
+            foreach (var user in Model.Users)
+            {
+                <tr>
+                    <td style="max-width:120px;word-break:break-word;white-space:normal;">@user.Username</td>
+                    <td style="max-width:120px;word-break:break-word;white-space:normal;">@user.FirstName</td>
+                    <td style="max-width:120px;word-break:break-word;white-space:normal;">@user.LastName</td>
+                    <td style="max-width:180px;word-break:break-word;white-space:normal;">@user.Email</td>
+                    <td style="max-width:120px;word-break:break-word;white-space:normal;">@user.TeamName</td>
+                    <td style="max-width:100px;word-break:break-word;white-space:normal;">@user.Status</td>
+                    <td style="max-width:100px;word-break:break-word;white-space:normal;">@user.Role</td>
+                    <td style="max-width:160px;word-break:break-word;white-space:normal;">@user.Created?.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td style="max-width:160px;word-break:break-word;white-space:normal;">@user.Modified?.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td style="max-width:120px;word-break:break-word;white-space:normal;">
+                        <form method="post" asp-page-handler="Delete" asp-route-id="@user.Id" style="display:inline" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                            <button type="submit" class="btn btn-link p-0 m-0 align-baseline" style="vertical-align:middle;">
+                                <img src="/icons/deleteIcon.png" alt="Delete" style="width:24px;height:24px;object-fit:contain;" />
+                            </button>
+                        </form>
+                        <button type="button" class="btn btn-link p-0 m-0 align-baseline" style="vertical-align:middle;" onclick="openEditModal('@user.Id', '@user.Username', '@user.FirstName', '@user.LastName', '@user.Email', '@user.TeamName', '@user.Status', '@user.Role')">
+                            <img src="/icons/updatePencilIcon.png" alt="Modify" style="width:24px;height:24px;object-fit:contain;" />
+                        </button>
+                        <button type="button" class="btn btn-link p-0 m-0 align-baseline" style="vertical-align:middle;" onclick="openPasswordModal('@user.Id', '@user.Username')">
+                            <img src="/icons/changepasswordIcon.png" alt="Update Password" style="width:24px;height:24px;object-fit:contain;" />
+                        </button>
+    
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="10" class="text-center">No users found.</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+
+
+    <!-- Update Password Modal -->
+<div class="modal fade" id="updatePasswordModal" tabindex="-1" aria-labelledby="updatePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="updatePasswordFormModal" autocomplete="off">
+                <input type="hidden" id="updatePasswordUserIdModal" />
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updatePasswordModalLabel">Update Password for <span id="updatePasswordUsernameModal"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="updatePasswordModal" class="form-label">New Password <span style="color:red">*</span></label>
+                        <input type="password" class="form-control" id="varnewPassword" name="NewPassword" required minlength="12" pattern="(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9]).{12,}" autocomplete="new-password" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="updateConfirmPassword" class="form-label">Confirm Password <span style="color:red">*</span></label>
+                        <input type="password" class="form-control" id="updateConfirmPassword" name="updateConfirmPassword" required  />
+                        <div class="invalid-feedback" id="update-passwordMatchFeedbackModal"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+    <script>
+        // Password modal logic
+window.openPasswordModal = function(id, username) {
+    document.getElementById('updatePasswordUserIdModal').value = id;
+    document.getElementById('updatePasswordUsernameModal').textContent = username;
+    document.getElementById('varnewPassword').value = '';
+    document.getElementById('updateConfirmPassword').value = '';
+    document.getElementById('update-passwordMatchFeedbackModal').textContent = '';
+    var modal = new bootstrap.Modal(document.getElementById('updatePasswordModal'));
+    modal.show();
+}
+document.getElementById('updatePasswordFormModal').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var userId = document.getElementById('updatePasswordUserIdModal').value;
+    var varnewPassword = document.getElementById('varnewPassword').value;
+    //alert("varnewPassword: "+varnewPassword);
+    var varconfirmPassword = document.getElementById('updateConfirmPassword').value;
+    //alert("document.getElementById('updateConfirmPassword').value: "+varconfirmPassword);
+    var feedback = document.getElementById('update-passwordMatchFeedbackModal');
+    if (varnewPassword !== document.getElementById('updateConfirmPassword').value) {
+        feedback.textContent = 'Passwords do not match. ';
+        document.getElementById('updateConfirmPassword').classList.add('is-invalid');
+        return;
+    }
+    document.getElementById('updateConfirmPassword').classList.remove('is-invalid');
+    feedback.textContent = '';
+    // Password complexity check
+    var pwPattern = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9]).{12,}$/;
+    if (!pwPattern.test(varnewPassword )) {
+        document.getElementById('updatePasswordModal').classList.add('is-invalid');
+        feedback.textContent = 'Password must be at least 12 characters, contain 1 uppercase, 1 number, and 1 special character.';
+        return;
+    }
+    document.getElementById('updatePasswordModal').classList.remove('is-invalid');
+    // AJAX call to update password
+    fetch('/api/updatepassword', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: userId, password: varnewPassword })
+    })
+    .then(res => res.json())
+    .then(function(data) {
+        if (data.success) {
+            alert('Password updated successfully!');
+            var modalEl = document.getElementById('updatePasswordModal');
+            var modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modalInstance.hide();
+        } else {
+            feedback.textContent = data.error || 'Error updating password.';
+        }
+    })
+    .catch(() => {
+        feedback.textContent = 'Error updating password.';
+    });
+});
+    </script>
+    <!-- Add User Modal -->
+    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" asp-page-handler="Add">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addUserModalLabel">Add User</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username <span style="color:red">*</span></label>
+                            <input type="text" class="form-control" id="username" name="NewUsername" required pattern="^[a-zA-Z0-9]+$" title="Only letters and numbers allowed." onblur="checkUsernameUnique(this)" />
+                            <div class="invalid-feedback" id="username-feedback"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="firstname" class="form-label">First Name <span style="color:red">*</span></label>
+                            <input type="text" class="form-control" id="firstname" name="NewFirstName" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="lastname" class="form-label">Last Name <span style="color:red">*</span></label>
+                            <input type="text" class="form-control" id="lastname" name="NewLastName" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email <span style="color:red">*</span></label>
+                            <input type="email" class="form-control" id="email" name="NewEmail" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="teamname" class="form-label">Team Name <span style="color:red">*</span></label>
+                            <input type="text" class="form-control" id="teamname" name="NewTeamName" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password <span style="color:red">*</span></label>
+                            <input type="password" class="form-control" id="password" name="NewPassword" required minlength="12" pattern="(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9]).{12,}" title="Password must be at least 12 characters, contain 1 uppercase, 1 number, and 1 special character." />
+                            <div class="invalid-feedback" id="password-feedback"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="role" class="form-label">Role <span style="color:red">*</span></label>
+                            <select class="form-control" id="role" name="NewRole" required>
+                                <option value="">Select Role</option>
+                                <option value="SuperAdmin">SuperAdmin</option>
+                                <option value="ScrumMaster">ScrumMaster</option>
+                                <option value="Developer">Developer</option>
+                                <option value="UIDesigner">UIDesigner</option>
+                                <option value="Tester">Tester</option>
+                                <option value="Deployer">Deployer</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status <span style="color:red">*</span></label>
+                            <select class="form-control" id="status" name="NewStatus" required>
+                                <option value="">Select Status</option>
+                                <option value="Active">Active</option>
+                                <option value="Locked">Locked</option>
+                                <option value="Disabled">Disabled</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Username uniqueness check
+        function checkUsernameUnique(input) {
+            var username = input.value;
+            var pattern = /^[a-zA-Z0-9]+$/;
+            var feedback = document.getElementById('username-feedback');
+            if (!username) return;
+            if (!pattern.test(username)) {
+                input.classList.add('is-invalid');
+                feedback.textContent = 'Username can only contain letters and numbers.';
+                return;
+            }
+            fetch(`?handler=CheckUsername&username=${encodeURIComponent(username)}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.exists) {
+                        input.classList.add('is-invalid');
+                        feedback.textContent = 'Username already exists.';
+                    } else {
+                        input.classList.remove('is-invalid');
+                        feedback.textContent = '';
+                    }
+                });
+        }
+        // Reset form and validation states when modal is opened
+        document.getElementById('addUserModal').addEventListener('show.bs.modal', function() {
+            var form = document.querySelector('#addUserModal form');
+            if (form) {
+                form.reset();
+                form.querySelectorAll('.is-invalid').forEach(function(input) {
+                    input.classList.remove('is-invalid');
+                });
+                document.getElementById('username-feedback').textContent = '';
+                document.getElementById('password-feedback').textContent = '';
+            }
+        });
+        // Robust validation on submit
+        document.querySelector('#addUserModal form').addEventListener('submit', function(e) {
+            var form = e.target;
+            var valid = true;
+            // Prevent modal from closing on submit if invalid
+            e.stopPropagation();
+            // Ensure all required fields are enabled and visible
+            form.querySelectorAll('input[required], select[required]').forEach(function(input) {
+                if (input.disabled) input.disabled = false;
+                if (input.type !== 'hidden' && input.offsetParent === null) {
+                    input.style.display = '';
+                }
+                if (!input.value) {
+                    input.classList.add('is-invalid');
+                    valid = false;
+                } else {
+                    input.classList.remove('is-invalid');
+                }
+            });
+            // Password complexity
+            var pw = form.querySelector('#password');
+            var pwFeedback = document.getElementById('password-feedback');
+            var pwVal = pw.value;
+            var pwPattern = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9]).{12,}$/;
+            if (!pwPattern.test(pwVal)) {
+                pw.classList.add('is-invalid');
+                pwFeedback.textContent = 'Password must be at least 12 characters, contain 1 uppercase, 1 number, and 1 special character.';
+                valid = false;
+            } else {
+                pw.classList.remove('is-invalid');
+                pwFeedback.textContent = '';
+            }
+            // Username uniqueness
+            var uname = form.querySelector('#username');
+            var unameFeedback = document.getElementById('username-feedback');
+            if (uname.classList.contains('is-invalid')) {
+                valid = false;
+                if (!unameFeedback.textContent) {
+                    unameFeedback.textContent = 'Username already exists or invalid.';
+                }
+            }
+            if (!valid) {
+                e.preventDefault();
+                // Prevent modal from closing
+                var modalEl = document.getElementById('addUserModal');
+                if (modalEl) {
+                    var modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+                    modalInstance.show();
+                }
+                // Focus first invalid field
+                setTimeout(function() {
+                    var firstInvalid = form.querySelector('.is-invalid');
+                    if (firstInvalid && typeof firstInvalid.focus === 'function') {
+                        firstInvalid.focus();
+                    }
+                }, 100);
+            }
+        });
+        // Edit modal logic
+        window.openEditModal = function(id, username, firstname, lastname, email, teamname, status, role) {
+            document.getElementById('editUserId').value = id;
+            document.getElementById('edit-username').value = username;
+            document.getElementById('edit-firstname').value = firstname;
+            document.getElementById('edit-lastname').value = lastname;
+            document.getElementById('edit-email').value = email;
+            document.getElementById('edit-teamname').value = teamname;
+            document.getElementById('edit-status').value = status;
+            document.getElementById('edit-role').value = role;
+            var modal = new bootstrap.Modal(document.getElementById('editUserModal'));
+            modal.show();
+        }
+    </script>
+    <!-- Edit User Modal -->
+    <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" asp-page-handler="Edit">
+                    <input type="hidden" id="editUserId" name="EditId" />
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="edit-username" class="form-label">Username <span style="color:red">*</span></label>
+                            <input type="text" class="form-control" id="edit-username" name="NewUsername" required pattern="^[a-zA-Z0-9]+$" title="Only letters and numbers allowed." />
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-firstname" class="form-label">First Name <span style="color:red">*</span></label>
+                            <input type="text" class="form-control" id="edit-firstname" name="NewFirstName" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-lastname" class="form-label">Last Name <span style="color:red">*</span></label>
+                            <input type="text" class="form-control" id="edit-lastname" name="NewLastName" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-email" class="form-label">Email <span style="color:red">*</span></label>
+                            <input type="email" class="form-control" id="edit-email" name="NewEmail" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-teamname" class="form-label">Team Name <span style="color:red">*</span></label>
+                            <input type="text" class="form-control" id="edit-teamname" name="NewTeamName" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-role" class="form-label">Role <span style="color:red">*</span></label>
+                            <select class="form-control" id="edit-role" name="NewRole" required>
+                                <option value="">Select Role</option>
+                                <option value="SuperAdmin">SuperAdmin</option>
+                                <option value="ScrumMaster">ScrumMaster</option>
+                                <option value="Developer">Developer</option>
+                                <option value="UIDesigner">UIDesigner</option>
+                                <option value="Tester">Tester</option>
+                                <option value="Deployer">Deployer</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-status" class="form-label">Status <span style="color:red">*</span></label>
+                            <select class="form-control" id="edit-status" name="NewStatus" required>
+                                <option value="">Select Status</option>
+                                <option value="Active">Active</option>
+                                <option value="Locked">Locked</option>
+                                <option value="Disabled">Disabled</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
