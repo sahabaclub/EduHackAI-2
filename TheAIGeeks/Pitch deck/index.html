@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CleverMart - AI Smart Shop Solution</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow-x: hidden;
+        }
+        
+        .presentation-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .slide {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem 2rem;
+            position: relative;
+            background: white;
+            margin-bottom: 2px;
+            animation: slideIn 0.8s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide:nth-child(1) { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .slide:nth-child(2) { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%); }
+        .slide:nth-child(3) { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+        .slide:nth-child(4) { background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); }
+        .slide:nth-child(5) { background: linear-gradient(135deg, #e0c3fc 0%, #9bb5ff 100%); }
+        .slide:nth-child(6) { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        
+        .slide-content {
+            max-width: 1000px;
+            text-align: center;
+            z-index: 2;
+        }
+        
+        h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        h2 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: #2d3748;
+        }
+        
+        .slide:nth-child(1) h2,
+        .slide:nth-child(6) h2 {
+            color: white;
+        }
+        
+        .subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        .problem-points {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .problem-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transform: translateY(0);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .problem-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        .problem-card h3 {
+            color: #e53e3e;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        
+        .solution-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .solution-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+        
+        .solution-card:hover {
+            transform: scale(1.05);
+            border-color: #667eea;
+        }
+        
+        .solution-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .solution-card h3 {
+            color: #2d3748;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        .feature-card h3 {
+            color: #2d3748;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        
+        .feature-card p {
+            color: #4a5568;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+        
+        .upcoming-timeline {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        
+        .timeline-item {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            min-width: 200px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .timeline-item:hover {
+            transform: scale(1.05);
+        }
+        
+        .timeline-item::after {
+            content: '→';
+            position: absolute;
+            right: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .timeline-item:last-child::after {
+            display: none;
+        }
+        
+        .phase {
+            background: #667eea;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+        
+        .cta-section {
+            margin-top: 3rem;
+            text-align: center;
+        }
+        
+        .cta-button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 1rem 3rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0 1rem;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .decoration {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .decoration:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+        .decoration:nth-child(2) { top: 20%; right: 10%; animation-delay: 2s; }
+        .decoration:nth-child(3) { bottom: 10%; left: 20%; animation-delay: 4s; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .logo {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            h2 { font-size: 2rem; }
+            .slide { padding: 2rem 1rem; }
+            .timeline-item::after { display: none; }
+            .upcoming-timeline { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Slide 1: Title -->
+        <div class="slide">
+            <div class="decoration"></div>
+            <div class="decoration"></div>
+            <div class="decoration"></div>
+            <div class="slide-content">
+                <div class="logo">🛒</div>
+                <h1>CleverMart</h1>
+                <p class="subtitle">AI-Powered Smart Shop Management Solution</p>
+                <p class="subtitle">Revolutionizing Retail with End-to-End AI Intelligence</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: The Problem -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>The Problem</h2>
+                <p class="subtitle">Traditional retail management faces critical challenges</p>
+                
+                <div class="problem-points">
+                    <div class="problem-card">
+                        <h3>📊 Inefficient Inventory Management</h3>
+                        <p>Manual tracking leads to stockouts, overstocking, and lost revenue opportunities</p>
+                    </div>
+                    <div class="problem-card">
+                        <h3>🤖 Poor Customer Experience</h3>
+                        <p>Long wait times, limited assistance, and lack of personalized service</p>
+                    </div>
+                    <div class="problem-card">
+                        <h3>💰 Revenue Leakage</h3>
+                        <p>Lack of data-driven insights results in missed sales opportunities and pricing errors</p>
+                    </div>
+                    <div class="problem-card">
+                        <h3>⏰ Time-Consuming Operations</h3>
+                        <p>Manual processes consume valuable time that could be spent on growth</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Solution -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>CleverMart Solution</h2>
+                <p class="subtitle">Complete AI-driven retail management ecosystem</p>
+                
+                <div class="solution-grid">
+                    <div class="solution-card">
+                        <div class="solution-icon">🤖</div>
+                        <h3>AI Chatbot Assistant</h3>
+                        <p>24/7 intelligent customer support and business operations management</p>
+                    </div>
+                    <div class="solution-card">
+                        <div class="solution-icon">📈</div>
+                        <h3>Smart Analytics</h3>
+                        <p>Real-time insights and predictive analytics for better decisions</p>
+                    </div>
+                    <div class="solution-card">
+                        <div class="solution-icon">⚡</div>
+                        <h3>Automated Operations</h3>
+                        <p>Streamlined processes from inventory to customer management</p>
+                    </div>
+                    <div class="solution-card">
+                        <div class="solution-icon">🎯</div>
+                        <h3>End-to-End Management</h3>
+                        <p>Complete solution covering every aspect of shop operations</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Current Features -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Current Features</h2>
+                <p class="subtitle">Powerful capabilities already transforming retail operations</p>
+                
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h3>🛍️ Inventory Management</h3>
+                        <p>AI-powered stock tracking, automatic reorder points, and real-time inventory updates across all channels</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>💬 Customer Service Chatbot</h3>
+                        <p>Intelligent customer support handling inquiries, orders, and providing personalized recommendations</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>📊 Sales Analytics</h3>
+                        <p>Comprehensive reporting dashboard with sales trends, performance metrics, and profit analysis</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>🏪 Store Operations</h3>
+                        <p>Staff scheduling, task management, and operational workflow optimization</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>💳 Payment Processing</h3>
+                        <p>Integrated payment solutions with multiple payment methods and fraud detection</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>📱 Mobile Management</h3>
+                        <p>Complete mobile app for on-the-go store management and monitoring</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Upcoming Features -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Upcoming Features</h2>
+                <p class="subtitle">The future of intelligent retail management</p>
+                
+                <div class="upcoming-timeline">
+                    <div class="timeline-item">
+                        <div class="phase">Q3 2025</div>
+                        <h3>🔮 Predictive Analytics</h3>
+                        <p>Demand forecasting and market trend prediction</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="phase">Q4 2025</div>
+                        <h3>🛒 Smart Shopping</h3>
+                        <p>AR product visualization and virtual shopping assistant</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="phase">Q1 2026</div>
+                        <h3>🌐 Multi-Store Chain</h3>
+                        <p>Centralized management for multiple locations</p>
+                    </div>
+                </div>
+
+                <div class="features-grid" style="margin-top: 2rem;">
+                    <div class="feature-card">
+                        <h3>🎯 Dynamic Pricing</h3>
+                        <p>AI-driven pricing optimization based on demand, competition, and market conditions</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>🚚 Supply Chain Integration</h3>
+                        <p>Direct supplier connections and automated procurement workflows</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>👥 Customer Loyalty AI</h3>
+                        <p>Personalized loyalty programs and targeted marketing campaigns</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Call to Action -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>Ready to Transform Your Retail Business?</h2>
+                <p class="subtitle">Join the AI revolution in retail management</p>
+                
+                <div class="cta-section">
+                    <h3 style="margin-bottom: 2rem; font-size: 1.5rem; color: white;">CleverMart: Where Intelligence Meets Commerce</h3>
+                    <a href="#" class="cta-button">Schedule Demo</a>
+                    <a href="#" class="cta-button">Get Started</a>
+                </div>
+                
+                <div style="margin-top: 3rem; font-size: 1.2rem; opacity: 0.9;">
+                    <p>📧 contact@clevermart.ai</p>
+                    <p>🌐 www.clevermart.ai</p>
+                    <p>📱 +1 (555) CLEVER-1</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Smooth scrolling between slides
+        document.addEventListener('wheel', function(e) {
+            if (e.deltaY > 0) {
+                // Scroll down
+                window.scrollBy({
+                    top: window.innerHeight,
+                    behavior: 'smooth'
+                });
+            } else {
+                // Scroll up
+                window.scrollBy({
+                    top: -window.innerHeight,
+                    behavior: 'smooth'
+                });
+            }
+        });
+
+        // Add click handlers for CTA buttons
+        document.querySelectorAll('.cta-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                // Add your action here
+                alert('Thank you for your interest in CleverMart! We\'ll be in touch soon.');
+            });
+        });
+
+        // Animate cards on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all cards
+        document.querySelectorAll('.problem-card, .solution-card, .feature-card, .timeline-item').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
