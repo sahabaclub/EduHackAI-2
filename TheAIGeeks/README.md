@@ -306,50 +306,6 @@ Pita Bread Pack of 5 – HomeBaked"*
 
 <div align="center">
 
-### 🎯 **Ready to Get Started?**
-
-<img src="https://img.shields.io/badge/🚀-Deploy%20Now-success?style=for-the-badge&logo=microsoft" />
-<img src="https://img.shields.io/badge/📥-Download%20Demo-informational?style=for-the-badge&logo=download" />
-<img src="https://img.shields.io/badge/💬-Get%20Support-important?style=for-the-badge&logo=help" />
-
-**Download the complete demo package**: [`CleverMart-Demo.zip`](./CleverMart-Demo.zip)  
-*Includes all screenshots, sample data, and deployment guides*
-
-</div>
-
----
-
-## 🏗 Architecture
-
-```text
-Power Apps (Canvas)    SharePoint Lists ─ Products / Orders / Vendors / Customers
-        │
-        ├─ Power Automate flows  (order-to-invoice, stock alerts, QR generation)
-        │
-        └─ Copilot Studio agent "CleverMart GM" (chat / voice)
-                 │
-                 └─ Azure Cognitive Services  (Speech, TTS)
-```
-
-Data model: see `/solution/CleverMart_DataModel.drawio`.
-
-## 🚀 Getting Started
-
-### 1. Prerequisites
-- Power Apps licence with AI Builder credits
-- Environment roles: Environment Maker + AI Builder User  
-- SharePoint site (or Dataverse) for backend lists
-
-### 2. Setup Steps
-```shell
-# 1. Import the managed solution (Settings → Solutions → Import)
-# 2. Configure environment variables (SharePoint URLs, list IDs)
-# 3. Run the 'Provision Lists' flow to create demo data
-# 4. Share the Canvas app with users (Owner and Customer roles)
-# 5. Publish Copilot Studio agent and test chat/voice
-```
-
-See `docs/deployment-guide.md` for a full walkthrough.
 
 ## 🧩 Tech Stack
 
