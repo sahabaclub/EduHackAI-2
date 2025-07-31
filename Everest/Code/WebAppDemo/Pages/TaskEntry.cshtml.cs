@@ -57,7 +57,7 @@ public class TaskEntryModel : PageModel
    
         if (!string.IsNullOrWhiteSpace(Requirement))
         {
-            var apiKey = "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"; // TODO: Replace with your actual OpenAI API key
+            var apiKey = "<APIKEY>"; // TODO: Replace with your actual OpenAI API key
             // Only include selected users in the teamMembers list
             var allMembers = GetTeamMembers();
             var teamMembers = allMembers.Where(u => selectedUsers.Contains(u.Id.ToString())).ToList();
